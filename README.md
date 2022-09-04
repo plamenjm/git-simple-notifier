@@ -5,6 +5,15 @@ running git-log, checking for new repositories (github API),
 
 sending desktop notifications and push notifications powered by [ntfy.sh](ntfy.sh).
 
+---
+
+Run it without parameters for 'usage' information. 
+
+There are few hints inside the configuration file.
+
+Note: First you must edit the configuration file for your needs!
+
+---
 
 1. Console output:
 
