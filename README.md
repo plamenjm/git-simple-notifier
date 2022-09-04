@@ -11,6 +11,8 @@ Run it without parameters for 'usage' information.
 
 There are few hints inside the configuration file.
 
+The script does not need approvement from organization.
+
 Note: First you must edit the configuration file for your needs!
 
 ---
