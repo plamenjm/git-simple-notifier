@@ -1,11 +1,19 @@
 #!/bin/bash
 
+SCRIPT='git-simple-notifier'
+CONFIG="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/.$SCRIPT.config"
+
 notifyCallback() { # $1=text
 	echo "$1"
 }
 
-SCRIPT='git-simple-notifier'
-CONFIG="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/.$SCRIPT.config"
+notifyPushCallback() { # $1=text
+	echo "$1"
+}
+
+loopCallback() {
+	return 0
+}
 
 if [ -f "$CONFIG" ]; then
 	source "$CONFIG" \
@@ -24,7 +32,8 @@ requiredDirs() {
 
 requiredUtils() { # $@:RequiredUtils
 	for U in "$@"; do
-		[ -n $(which "$U") ] \
+		which "$U" > /dev/null
+		[ 0 == $? ] \
 			|| { echo ERR 3 "'$U' is required." >&2; exit 3; }
 	done
 }
@@ -45,13 +54,14 @@ init() { # $1:UserOrOrganization $*:Repositories
 ###
 
 notify() { # $2:Type $3:Priority $3:Kind $4:Title $5:Message
-	priority="$3"; kind="$4"; title="$5"; message="$6"; echo; echo "$kind: $title"; echo "$message"
+	priority="$3"; kind="$4"; title="$(notifyCallback $5)"; message="$(notifyCallback $6)"
+	echo; echo "$kind: $title"; echo "$message"
 	if [ "$2" == 'all' ] || [ "$2" == 'desktop' ]; then
 		notify-send -u critical "$kind: $title" "$message" \
 			|| echo ERR 21 >&2
 	fi
 	if [ "$2" == 'all' ] || [ "$2" == 'push' ]; then
-		curl -H "Priority: $priority" -H "Tags: $SCRIPT,$kind" -H "Title: $kind: $(notifyCallback "$title")" -d "$(notifyCallback "$message")" ntfy.sh/$NTFY_TOPIC \
+		curl -H "Priority: $priority" -H "Tags: $SCRIPT,$kind" -H "Title: $kind: $(notifyPushCallback "$title")" -d "$(notifyPushCallback "$message")" ntfy.sh/$NTFY_TOPIC \
 			|| echo ERR 22 >&2
 	fi
 }
@@ -66,7 +76,8 @@ checkGit() { # $2:NotificationType $3:NotificationPriority $@:GitDirectories
 		fi
 		cd "$dirGit" \
 			&& git fetch --all \
-			&& git log -$LOG_LINES --all --pretty=format:'%ai %an [%S] %s' > "$fileLog" \
+			&& git log -$LOG_LINES --all --pretty=format:'%ai %an [%S]%n%s' > "$fileLog" \
+			&& echo >> "$fileLog" \
 			|| { echo ERR 32 >&2; continue; }
 		if [ -f "$fileOld" ]; then
 			diff=$(diff --unchanged-line-format= --old-line-format= "$fileOld" "$fileLog")
@@ -126,9 +137,12 @@ elif [ "$1" == 'loop' ]; then
 	requiredUtils mkdir git cat diff curl
 	[ "$2" == 'all' ] || [ "$2" == 'desktop' ] requiredUtils notify-send
 	while true; do
-		checkGit '' "$2" $NtfyPriorityRepositories $DIR_CONFIG/*
-		checkGit '' "$2" $NtfyPriorityDirectories $ListRepositoryDirectories
-		checkGithub '' "$2" $NtfyPriorityOrganizations $ListOrganizations
+		loopCallback
+		if [ 0 == $? ]; then
+			checkGit '' "$2" $NtfyPriorityRepositories $DIR_CONFIG/*
+			checkGit '' "$2" $NtfyPriorityDirectories $ListRepositoryDirectories
+			checkGithub '' "$2" $NtfyPriorityOrganizations $ListOrganizations
+		fi
 		echo $SCRIPT $(date) sleep $SLEEP_TIME ...
 		sleep $SLEEP_TIME
 	done
