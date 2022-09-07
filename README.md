@@ -3,7 +3,7 @@ Simple bash script
 
 running git-log, checking for new repositories (github API), 
 
-sending desktop notifications and push notifications powered by [ntfy.sh](ntfy.sh).
+sending desktop notifications and push notifications powered by [ntfy.sh](https://ntfy.sh).
 
 ---
 
@@ -27,11 +27,11 @@ Note: First you must edit the configuration file for your needs!
 ![image](https://user-images.githubusercontent.com/56994434/188336327-246643e9-d6c3-438c-9eda-9d1fce7683f4.png)
 
 
-3. [ntfy.sh](ntfy.sh) android notifications:
+3. [ntfy](https://github.com/binwiederhier/ntfy) notifications:
 
 ![image](https://user-images.githubusercontent.com/56994434/188336329-8c54604a-049d-4b92-96bc-b578387a70fd.png)
 
 
-4. [ntfy.sh](ntfy.sh) android application:
+4. [ntfy-android](https://github.com/binwiederhier/ntfy-android) application:
 
 ![image](https://user-images.githubusercontent.com/56994434/188336331-6b7e1ec1-fa12-47ba-a05a-9f4b4186d078.png)
