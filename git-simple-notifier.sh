@@ -54,7 +54,7 @@ init() { # $1:UserOrOrganization $*:Repositories
 ###
 
 notify() { # $2:Type $3:Priority $3:Kind $4:Title $5:Message
-	priority="$3"; kind="$4"; title="$(notifyCallback $5)"; message="$(notifyCallback $6)"
+	priority="$3"; kind="$4"; title="$(notifyCallback "$5")"; message="$(notifyCallback "$6")"
 	echo; echo "$kind: $title"; echo "$message"
 	if [ "$2" == 'all' ] || [ "$2" == 'desktop' ]; then
 		notify-send -u critical "$kind: $title" "$message" \
@@ -76,7 +76,7 @@ checkGit() { # $2:NotificationType $3:NotificationPriority $@:GitDirectories
 		fi
 		cd "$dirGit" \
 			&& git fetch --all \
-			&& git log -$LOG_LINES --all --pretty=format:'%ai %an [%S]%n%s' > "$fileLog" \
+			&& git log -$LOG_LINES --all --pretty=format:'%ai %S%n%an: %s' > "$fileLog" \
 			&& echo >> "$fileLog" \
 			|| { echo ERR 32 >&2; continue; }
 		if [ -f "$fileOld" ]; then
@@ -113,21 +113,21 @@ if [ "$1" == 'init' ]; then
 elif [ "$1" == 'check-git' ]; then
 	requiredDirs "$DIR_CACHE" "$DIR_CONFIG"
 	requiredUtils mkdir git cat diff
-	[ "$2" == 'all' ] || [ "$2" == 'desktop' ] requiredUtils notify-send
-	[ "$2" == 'all' ] || [ "$2" == 'push' ] requiredUtils curl
+	[[ "$2" == 'all' || "$2" == 'desktop' ]] && requiredUtils notify-send
+	[[ "$2" == 'all' || "$2" == 'push' ]] && requiredUtils curl
 	checkGit '' "$2" $NtfyPriorityRepositories $DIR_CONFIG/*
 	checkGit '' "$2" $NtfyPriorityDirectories $ListRepositoryDirectories
 
 elif [ "$1" == 'check-api' ]; then
 	requiredDirs "$DIR_CACHE"
 	requiredUtils mkdir git cat diff curl
-	[ "$2" == 'all' ] || [ "$2" == 'desktop' ] requiredUtils notify-send
+	[[ "$2" == 'all' || "$2" == 'desktop' ]] && requiredUtils notify-send
 	checkGithub '' "$2" $NtfyPriorityOrganizations $ListOrganizations
 
 elif [ "$1" == 'check' ]; then
 	requiredDirs "$DIR_CACHE" "$DIR_CONFIG"
 	requiredUtils mkdir git cat diff curl
-	[ "$2" == 'all' ] || [ "$2" == 'desktop' ] requiredUtils notify-send
+	[[ "$2" == 'all' || "$2" == 'desktop' ]] && requiredUtils notify-send
 	checkGit '' "$2" $NtfyPriorityRepositories $DIR_CONFIG/*
 	checkGit '' "$2" $NtfyPriorityDirectories $ListRepositoryDirectories
 	checkGithub '' "$2" $NtfyPriorityOrganizations $ListOrganizations
@@ -135,7 +135,7 @@ elif [ "$1" == 'check' ]; then
 elif [ "$1" == 'loop' ]; then
 	requiredDirs "$DIR_CACHE" "$DIR_CONFIG"
 	requiredUtils mkdir git cat diff curl
-	[ "$2" == 'all' ] || [ "$2" == 'desktop' ] requiredUtils notify-send
+	[[ "$2" == 'all' || "$2" == 'desktop' ]] && requiredUtils notify-send
 	while true; do
 		loopCallback
 		if [ 0 == $? ]; then
