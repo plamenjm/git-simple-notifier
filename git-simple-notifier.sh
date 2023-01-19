@@ -76,7 +76,7 @@ checkGit() { # $2:NotificationType $3:NotificationPriority $@:GitDirectories
 		fi
 		cd "$dirGit" \
 			&& git fetch --all \
-			&& git log -$LOG_LINES --all --pretty=format:'%ai %S%n%an: %s' > "$fileLog" \
+			&& git log -$LOG_LINES --all --pretty=format:'%ai %S %an: %s' > "$fileLog" \
 			&& echo >> "$fileLog" \
 			|| { echo ERR 32 >&2; continue; }
 		if [ -f "$fileOld" ]; then
